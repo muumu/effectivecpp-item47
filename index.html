@@ -1,47 +1,47 @@
 <!doctype html>
 <html lang="en">
 
-	<head>
-		<meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
 
-		<title>Effective C++ 読書ノート Item 47</title>
+        <title>Effective C++ 読書ノート Item 47</title>
 
-		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-		<meta name="author" content="Hakim El Hattab">
+        <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+        <meta name="author" content="Hakim El Hattab">
 
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="css/reveal.min.css">
-		<link rel="stylesheet" href="css/theme/custom.css" id="theme">
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/custom.css" id="theme">
 
-		<!-- For syntax highlighting -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
 
-		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
-		<script>
-			if( window.location.search.match( /print-pdf/gi ) ) {
-				var link = document.createElement( 'link' );
-				link.rel = 'stylesheet';
-				link.type = 'text/css';
-				link.href = 'css/print/pdf.css';
-				document.getElementsByTagName( 'head' )[0].appendChild( link );
-			}
-		</script>
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
 
-		<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
-	</head>
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
 
-	<body>
+    <body>
 
-		<div class="reveal">
+        <div class="reveal">
 
-			<!-- Any section element inside of this container is displayed as a slide -->
-			<div class="slides">
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
 <section>
 <h2>Effective C++ 読書ノート</h2>
 <h3>Item 47: 型情報を得るためにtraitsクラスを使おう</h3>
@@ -52,7 +52,7 @@
 
 <section>
 <p>
-STLはtemplateによるコンテナやイテレータ、アルゴリズムを提供しているが、templateのユーティリティも提供している<br>
+STLはtemplateのユーティリティも提供している<br>
 たとえばadvance
 </p>
 <pre><code class="cpp">
@@ -67,46 +67,66 @@ iter += d;<br>
 </p>
 </section>
 
-イテレータには5つのカテゴリがある
+<section>
+<h2>イテレータの5つのカテゴリ</h2>
+</section>
 
-最も貧弱なイテレータカテゴリ
-input iterator
-++することしかできない（1つ前に行くのみ）
-指し先をたった一度だけ「読み込む」ことができる
+<section>
+<h3>input iterator</h3>
+<p>
+++することしかできない（1つ前に行くのみ）<br>
+指し先をたった一度だけ「読み込む」ことができる<br>
 istream_iteratorが代表例（入力ファイルの読み込み）
-
-output iterator
-input iteratorのoutput版
-++することしかできない（1つ前に行くのみ）
-指し先をたった一度だけ「書き込む」ことができる
+</p>
+</section>
+<section>
+<h3>output iterator</h3>
+<p>
+input iteratorのoutput版<br>
+++することしかできない（1つ前に行くのみ）<br>
+指し先をたった一度だけ「書き込む」ことができる<br>
 ostream_iteratorが代表例
+</p>
+</section>
 
-
-forward iterator
-input iteratorとoutput iteratorの両機能を持つ
-++することしかできない（1つ前に行くのみ）
-読み込み・書き込みは何度もできる
-unordered_mapはforward iteratorを持つ
+<section>
+<h4>forward iterator</h4>
+<p>
+input iteratorとoutput iteratorの両機能を持つ<br>
+++することしかできない（1つ前に行くのみ）<br>
+読み込み・書き込みは何度もできる<br>
+unordered_mapはforward iteratorを持つ<br>
 http://www.cplusplus.com/reference/unordered_map/unordered_map/
+</p>
+</section>
 
-bidirectional iterator
-forward iteratorに加えて後ろにも行ける
-++と--することが可能（1つ前と1つ後ろに行ける）
+<section>
+<h3>bidirectional iterator</h3>
+<p>
+forward iteratorに加えて後ろにも行ける<br>
+++と--することが可能（1つ前と1つ後ろに行ける）<br>
 STLのlist, set, multiset, map, multimapはbidirectional iteratorを持つ
+</p>
+</section>
 
-random access iterator
+<section>
+<h3>random access iterator</h3>
+</section>
 
-
-継承関係
+<section>
+<h2>継承関係</h2>
+<pre><code class="cpp">
 struct input_iterator_tag {};
 struct output_iterator_tag {};
 struct forward_iterator_tag: public input_iterator_tag {};
 struct bidirectional_iterator_tag: public forward_iterator_tag {};
 struct random_access_iterator_tag: public bidirectional_iterator_tag {};
+</code></pre>
+<p>これらはちゃんとしたis-a関係</p>
 
-これらはちゃんとしたis-a関係
-
-advanceをこのように実装したい
+<section>
+<h3>advanceの実装イメージ</h3>
+<pre><code class="cpp">
 template&lt;typename IterT, typename DistT&gt;
 void advance(IterT& iter, DistT d)
 {
@@ -118,17 +138,25 @@ void advance(IterT& iter, DistT d)
         else { while (d++) --iter; } // ++ or -- for other
     } // iterator categories
 }
+</code></pre>
+</section>
 
-traits
-コンパイル時に型についての情報を得る手段
-組み込み型についても適用したいので、クラス内に用意することはできない
+<section>
+<h3>traits</h3>
+<p>
+コンパイル時に型についての情報を得る手段<br>
+組み込み型についても適用したいので、クラス内に用意することはできない<br>
 templateパラメータにする
-
+</p>
+<pre><code class="cpp">
 template&lt;typename IterT&gt; // template for information about
 struct iterator_traits;  // iterator types
+</code></pre>
+</section>
 
-ユーザー定義型
-
+<section>
+<h3>ユーザー定義型</h3>
+<pre><code class="cpp">
 template &lt; ... &gt;
 class list {
 public:
@@ -145,24 +173,36 @@ struct iterator_traits {
     typedef typename IterT::iterator_category iterator_category;
     ...
 };
+</code></pre>
+</section>
 
-組み込み型の場合
-iteratorになる組み込み型はポインタ型
+<section>
+<h3>組み込み型の場合</h3>
+<p>
+iteratorになる組み込み型はポインタ型<br>
 templateの部分特殊化でサポート
+</p>
+<pre><code class="cpp">
 template&lt;typename T&gt;
 struct iterator_traits&lt;T*&gt;
 {
     typedef random_access_iterator_tag iterator_category;
     ...
 };
+</code></pre>
 
-traitsクラスを作成する手順
-識別したい型情報を定める (iteratorの場合はiterator category)
-その型情報を識別するための名前を決める (iterator_category)
+<section>
+<h3>traitsクラスを作成する手順</h3>
+<p>
+識別したい型情報を定める (iteratorの場合はiterator category)<br>
+その型情報を識別するための名前を決める (iterator_category)<br>
 templateとその特殊化を提供する (iterator_traits)
+</p>
+</section>
 
-iterator_traitsを使用したadvanceの実装
-
+<section>
+<h3>iterator_traitsを使用したadvanceの実装</h3>
+<pre><code class="cpp">
 // 意図はわかるがダメな例
 template&lt;typename IterT, typename DistT&gt;
 void advance(IterT& iter, DistT d)
@@ -172,8 +212,12 @@ void advance(IterT& iter, DistT d)
     ...
 }
 iterator_traitsはコンパイル時に結果を出すのにif文は実行時に判断＝オーバーヘッド
+</code></pre>
+</section>
 
-関数オーバーロードによる実装
+<section>
+<h3>関数オーバーロードによる実装</h3>
+<pre><code class="cpp">
 template&lt;typename IterT, typename DistT&gt; // use this impl for
 void doAdvance(IterT& iter, DistT d, // random access
     std::random_access_iterator_tag) // iterators
@@ -196,11 +240,15 @@ void doAdvance(IterT& iter, DistT d, // input iterators
     }
     while (d--) ++iter;
 }
+</code></pre>
+<p>
+forward_iterator_tagはinput_iterator_tagを継承しているので、input_iterator_tagの関数はforward_iterator_tagも受け入れる
+</p>
+</section>
 
- forward_iterator_tagはinput_iterator_tagを継承しているので、input_iterator_tagの関数はforward_iterator_tagも受け入れる
-
-呼び出し用の関数
-
+<section>
+<h3>呼び出し用の関数</h3>
+<pre><code class="cpp">
 template&lt;typename IterT, typename DistT&gt;
 void advance(IterT& iter, DistT d)
 {
@@ -210,61 +258,74 @@ void advance(IterT& iter, DistT d)
             std::iterator_traits&lt;IterT&gt;::iterator_category()
     );
 }
+</code></pre>
+</section>
 
-traitsクラスを利用する手順
-traits毎に実際の処理を行うオーバーロード関数を実装
+<section>
+<h3>traitsクラスを利用する手順</h3>
+<p>
+traits毎に実際の処理を行うオーバーロード関数を実装<br>
 traitsクラスの情報を利用して各オーバーロード関数を呼び出す関数を作成する
+</p>
+</section>
 
-char_traits: 文字の型情報を持つ
-numeric_limits: 表現可能な最小値と最大値などの数値に関する型情報を持つ
-is_fundamental&lt;T&gt; (C++11): Tが組込型かどうかを判定
-is_array&lt;T&gt; (C++11): Tが配列型かどうかを判定
-is_base_of&lt;T1, T2&gt; (C++11): T1がT2の基底（もしくは同一の）クラスであるかを判定
+<section>
+<h3>他のtraitsクラスの例</h3>
+<ul>
+<li>char_traits: 文字の型情報を持つ</li>
+<li>numeric_limits: 表現可能な最小値と最大値などの数値に関する型情報を持つ</li>
+<li>is_fundamental&lt;T&gt; (C++11): Tが組込型かどうかを判定</li>
+<li>is_array&lt;T&gt; (C++11): Tが配列型かどうかを判定</li>
+<li>is_base_of&lt;T1, T2&gt; (C++11): T1がT2の基底（もしくは同一の）クラスであるかを判定</li>
+</ul>
+</section>
 
-Things to Remember
-traitsクラスはコンパイル時に型情報を提供する。traitsクラスはtemplateとtemplateの特殊化によって実装される
-オーバーロードと組み合わせることで、型についてのコンパイル時if...elseを実現する
-
+<section>
+<h3>Things to Remember</h3>
+<ul>
+<li>traitsクラスはコンパイル時に型情報を提供する。traitsクラスはtemplateとtemplateの特殊化によって実装される</li>
+<li>オーバーロードと組み合わせることで、型についてのコンパイル時if...elseを実現する</li>
+</ul>
 </section>
 
 
 
-			</div>
+            </div>
 
-		</div>
+        </div>
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.min.js"></script>
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
 
-		<script>
+        <script>
 
-			// Full list of configuration options available here:
-			// https://github.com/hakimel/reveal.js#configuration
-			Reveal.initialize({
-				controls: true,
-				progress: true,
-				history: true,
-				center: true,
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
 
-				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
 
-				// Parallax scrolling
-				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
-				// parallaxBackgroundSize: '2100px 900px',
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
 
-				// Optional libraries used to extend on reveal.js
-				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
-				]
-			});
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
 
-		</script>
+        </script>
 
-	</body>
+    </body>
 </html>
