@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Effective C++ 読書ノート Item 47</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/custom.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+<section>
+<h2>Effective C++ 読書ノート</h2>
+<h3>Item 47: 型情報を得るためにtraitsクラスを使おう</h3>
+<p>
+<small>Created by Nobuyuki Mizoguchi</small>
+</p>
+</section>
+
+<section>
+<p>
+STLはtemplateによるコンテナやイテレータ、アルゴリズムを提供しているが、templateのユーティリティも提供している<br>
+たとえばadvance
+</p>
+<pre><code class="cpp">
+template&lt;typename IterT, typename DistT&gt;
+void advance(IterT& iter, DistT d);
+</code></pre>
+<p>
+ランダムアクセスイテレータなら<br>
+iter += d;<br>
+そうでなければ<br>
+++iter; もしくは --iter; をd回繰り返す。
+</p>
+</section>
+
+イテレータには5つのカテゴリがある
+
+最も貧弱なイテレータカテゴリ
+input iterator
+++することしかできない（1つ前に行くのみ）
+指し先をたった一度だけ「読み込む」ことができる
+istream_iteratorが代表例（入力ファイルの読み込み）
+
+output iterator
+input iteratorのoutput版
+++することしかできない（1つ前に行くのみ）
+指し先をたった一度だけ「書き込む」ことができる
+ostream_iteratorが代表例
+
+
+forward iterator
+input iteratorとoutput iteratorの両機能を持つ
+++することしかできない（1つ前に行くのみ）
+読み込み・書き込みは何度もできる
+unordered_mapはforward iteratorを持つ
+http://www.cplusplus.com/reference/unordered_map/unordered_map/
+
+bidirectional iterator
+forward iteratorに加えて後ろにも行ける
+++と--することが可能（1つ前と1つ後ろに行ける）
+STLのlist, set, multiset, map, multimapはbidirectional iteratorを持つ
+
+random access iterator
+
+
+継承関係
+struct input_iterator_tag {};
+struct output_iterator_tag {};
+struct forward_iterator_tag: public input_iterator_tag {};
+struct bidirectional_iterator_tag: public forward_iterator_tag {};
+struct random_access_iterator_tag: public bidirectional_iterator_tag {};
+
+これらはちゃんとしたis-a関係
+
+advanceをこのように実装したい
+template&lt;typename IterT, typename DistT&gt;
+void advance(IterT& iter, DistT d)
+{
+    if ( iter is a random access iterator ) {
+        iter += d; // use iterator arithmetic
+    } // for random access iters
+    else {
+        if (d &gt;= 0) { while (d--) ++iter; } // use iterative calls to
+        else { while (d++) --iter; } // ++ or -- for other
+    } // iterator categories
+}
+
+traits
+コンパイル時に型についての情報を得る手段
+組み込み型についても適用したいので、クラス内に用意することはできない
+templateパラメータにする
+
+template&lt;typename IterT&gt; // template for information about
+struct iterator_traits;  // iterator types
+
+ユーザー定義型
+
+template &lt; ... &gt;
+class list {
+public:
+    class iterator {
+    public:
+        typedef bidirectional_iterator_tag iterator_category;
+        ...
+    };
+...
+};
+
+template&lt;typename IterT&gt;
+struct iterator_traits {
+    typedef typename IterT::iterator_category iterator_category;
+    ...
+};
+
+組み込み型の場合
+iteratorになる組み込み型はポインタ型
+templateの部分特殊化でサポート
+template&lt;typename T&gt;
+struct iterator_traits&lt;T*&gt;
+{
+    typedef random_access_iterator_tag iterator_category;
+    ...
+};
+
+traitsクラスを作成する手順
+識別したい型情報を定める (iteratorの場合はiterator category)
+その型情報を識別するための名前を決める (iterator_category)
+templateとその特殊化を提供する (iterator_traits)
+
+iterator_traitsを使用したadvanceの実装
+
+// 意図はわかるがダメな例
+template&lt;typename IterT, typename DistT&gt;
+void advance(IterT& iter, DistT d)
+{
+    if (typeid(typename std::iterator_traits&lt;IterT&gt;::iterator_category) ==
+    typeid(std::random_access_iterator_tag))
+    ...
+}
+iterator_traitsはコンパイル時に結果を出すのにif文は実行時に判断＝オーバーヘッド
+
+関数オーバーロードによる実装
+template&lt;typename IterT, typename DistT&gt; // use this impl for
+void doAdvance(IterT& iter, DistT d, // random access
+    std::random_access_iterator_tag) // iterators
+{
+    iter += d;
+}
+template&lt;typename IterT, typename DistT&gt; // use this impl for
+void doAdvance(IterT& iter, DistT d, // bidirectional
+    std::bidirectional_iterator_tag) // iterators
+{
+    if (d &gt;= 0) { while (d--) ++iter; }
+    else { while (d++) --iter; }
+}
+template&lt;typename IterT, typename DistT&gt; // use this impl for
+void doAdvance(IterT& iter, DistT d, // input iterators
+    std::input_iterator_tag)
+{
+    if (d &lt; 0 ) {
+        throw std::out_of_range("Negative distance"); // see below
+    }
+    while (d--) ++iter;
+}
+
+ forward_iterator_tagはinput_iterator_tagを継承しているので、input_iterator_tagの関数はforward_iterator_tagも受け入れる
+
+呼び出し用の関数
+
+template&lt;typename IterT, typename DistT&gt;
+void advance(IterT& iter, DistT d)
+{
+    doAdvance(
+        iter, d,
+        typename
+            std::iterator_traits&lt;IterT&gt;::iterator_category()
+    );
+}
+
+traitsクラスを利用する手順
+traits毎に実際の処理を行うオーバーロード関数を実装
+traitsクラスの情報を利用して各オーバーロード関数を呼び出す関数を作成する
+
+char_traits: 文字の型情報を持つ
+numeric_limits: 表現可能な最小値と最大値などの数値に関する型情報を持つ
+is_fundamental&lt;T&gt; (C++11): Tが組込型かどうかを判定
+is_array&lt;T&gt; (C++11): Tが配列型かどうかを判定
+is_base_of&lt;T1, T2&gt; (C++11): T1がT2の基底（もしくは同一の）クラスであるかを判定
+
+Things to Remember
+traitsクラスはコンパイル時に型情報を提供する。traitsクラスはtemplateとtemplateの特殊化によって実装される
+オーバーロードと組み合わせることで、型についてのコンパイル時if...elseを実現する
+
+</section>
+
+
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
