@@ -68,7 +68,7 @@ iter += d;<br>
 </section>
 
 <section>
-<h2>イテレータの5つのカテゴリ</h2>
+<h2>イテレータ5つのカテゴリ</h2>
 </section>
 
 <section>
@@ -90,7 +90,7 @@ ostream_iteratorが代表例
 </section>
 
 <section>
-<h4>forward iterator</h4>
+<h3>forward iterator</h3>
 <p>
 input iteratorとoutput iteratorの両機能を持つ<br>
 ++することしかできない（1つ前に行くのみ）<br>
@@ -105,12 +105,16 @@ http://www.cplusplus.com/reference/unordered_map/unordered_map/
 <p>
 forward iteratorに加えて後ろにも行ける<br>
 ++と--することが可能（1つ前と1つ後ろに行ける）<br>
-STLのlist, set, multiset, map, multimapはbidirectional iteratorを持つ
+list, set, multiset, map, multimapは<br>bidirectional iteratorを持つ
 </p>
 </section>
 
 <section>
 <h3>random access iterator</h3>
+最も協力なイテレータカテゴリ
+定数時間で前後の任意の距離に移動できる
+ポインタと同じ動きをする
+vector, deque, stringは<br>random access iteratorを持つ
 </section>
 
 <section>
@@ -123,6 +127,7 @@ struct bidirectional_iterator_tag: public forward_iterator_tag {};
 struct random_access_iterator_tag: public bidirectional_iterator_tag {};
 </code></pre>
 <p>これらはちゃんとしたis-a関係</p>
+</section>
 
 <section>
 <h3>advanceの実装イメージ</h3>
