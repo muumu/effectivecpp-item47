@@ -111,15 +111,15 @@ list, set, multiset, map, multimapは<br>bidirectional iteratorを持つ
 
 <section>
 <h3>random access iterator</h3>
-最も協力なイテレータカテゴリ
-定数時間で前後の任意の距離に移動できる
-ポインタと同じ動きをする
+最も協力なイテレータカテゴリ<br>
+定数時間で前後の任意の距離に移動できる<br>
+ポインタと同じ動きをする<br>
 vector, deque, stringは<br>random access iteratorを持つ
 </section>
 
 <section>
 <h2>継承関係</h2>
-<pre><code class="cpp">
+<pre><code class="cpp" style="font-size: 28px;">
 struct input_iterator_tag {};
 struct output_iterator_tag {};
 struct forward_iterator_tag: public input_iterator_tag {};
@@ -136,12 +136,12 @@ template&lt;typename IterT, typename DistT&gt;
 void advance(IterT& iter, DistT d)
 {
     if ( iter is a random access iterator ) {
-        iter += d; // use iterator arithmetic
-    } // for random access iters
+        iter += d;
+    }
     else {
-        if (d &gt;= 0) { while (d--) ++iter; } // use iterative calls to
-        else { while (d++) --iter; } // ++ or -- for other
-    } // iterator categories
+        if (d &gt;= 0) { while (d--) ++iter; }
+        else { while (d++) --iter; }
+    }
 }
 </code></pre>
 </section>
@@ -150,17 +150,17 @@ void advance(IterT& iter, DistT d)
 <h3>traits</h3>
 <p>
 コンパイル時に型についての情報を得る手段<br>
-組み込み型についても適用したいので、クラス内に用意することはできない<br>
+組み込み型についても適用したいので<br>クラス内に用意することはできない<br>
 templateパラメータにする
 </p>
-<pre><code class="cpp">
-template&lt;typename IterT&gt; // template for information about
-struct iterator_traits;  // iterator types
+<pre><code class="cpp" style="font-size: 28px;">
+template&lt;typename IterT&gt;
+struct iterator_traits;
 </code></pre>
 </section>
 
 <section>
-<h3>ユーザー定義型</h3>
+<h3>ユーザー定義型の場合</h3>
 <pre><code class="cpp">
 template &lt; ... &gt;
 class list {
@@ -195,6 +195,7 @@ struct iterator_traits&lt;T*&gt;
     ...
 };
 </code></pre>
+</section>
 
 <section>
 <h3>traitsクラスを作成する手順</h3>
