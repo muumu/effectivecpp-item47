@@ -96,7 +96,7 @@ input iteratorとoutput iteratorの両機能を持つ<br>
 ++することしかできない（1つ前に行くのみ）<br>
 読み込み・書き込みは何度もできる<br>
 unordered_mapはforward iteratorを持つ<br>
-http://www.cplusplus.com/reference/unordered_map/unordered_map/
+<a href="http://www.cplusplus.com/reference/unordered_map/unordered_map/">http://www.cplusplus.com/reference/unordered_map/unordered_map/</a>
 </p>
 </section>
 
@@ -187,7 +187,7 @@ struct iterator_traits {
 iteratorになる組み込み型はポインタ型<br>
 templateの部分特殊化でサポート
 </p>
-<pre><code class="cpp">
+<pre><code class="cpp" style="font-size: 28px;">
 template&lt;typename T&gt;
 struct iterator_traits&lt;T*&gt;
 {
@@ -199,11 +199,11 @@ struct iterator_traits&lt;T*&gt;
 
 <section>
 <h3>traitsクラスを作成する手順</h3>
-<p>
-識別したい型情報を定める (iteratorの場合はiterator category)<br>
-その型情報を識別するための名前を決める (iterator_category)<br>
-templateとその特殊化を提供する (iterator_traits)
-</p>
+<ul>
+<li>識別したい型情報を定める<br>(iteratorの場合はiterator category)</li>
+<li>その型情報を識別するための名前を決める<br>(iterator_category)</li>
+<li>templateとその特殊化を提供する<br>(iterator_traits)</li>
+</ul>
 </section>
 
 <section>
@@ -214,47 +214,47 @@ template&lt;typename IterT, typename DistT&gt;
 void advance(IterT& iter, DistT d)
 {
     if (typeid(typename std::iterator_traits&lt;IterT&gt;::iterator_category) ==
-    typeid(std::random_access_iterator_tag))
-    ...
+        typeid(std::random_access_iterator_tag))
+        ...
 }
-iterator_traitsはコンパイル時に結果を出すのにif文は実行時に判断＝オーバーヘッド
+iterator_traitsはコンパイル時に結果を出すのにif文は実行時に判断 (オーバーヘッド)
 </code></pre>
 </section>
 
 <section>
 <h3>関数オーバーロードによる実装</h3>
 <pre><code class="cpp">
-template&lt;typename IterT, typename DistT&gt; // use this impl for
-void doAdvance(IterT& iter, DistT d, // random access
-    std::random_access_iterator_tag) // iterators
+template&lt;typename IterT, typename DistT&gt;
+void doAdvance(IterT& iter, DistT d,
+    std::random_access_iterator_tag)
 {
     iter += d;
 }
-template&lt;typename IterT, typename DistT&gt; // use this impl for
-void doAdvance(IterT& iter, DistT d, // bidirectional
-    std::bidirectional_iterator_tag) // iterators
+template&lt;typename IterT, typename DistT&gt;
+void doAdvance(IterT& iter, DistT d,
+    std::bidirectional_iterator_tag)
 {
     if (d &gt;= 0) { while (d--) ++iter; }
     else { while (d++) --iter; }
 }
-template&lt;typename IterT, typename DistT&gt; // use this impl for
-void doAdvance(IterT& iter, DistT d, // input iterators
+template&lt;typename IterT, typename DistT&gt;
+void doAdvance(IterT& iter, DistT d,
     std::input_iterator_tag)
 {
     if (d &lt; 0 ) {
-        throw std::out_of_range("Negative distance"); // see below
+        throw std::out_of_range("Negative distance");
     }
     while (d--) ++iter;
 }
 </code></pre>
 <p>
-forward_iterator_tagはinput_iterator_tagを継承しているので、input_iterator_tagの関数はforward_iterator_tagも受け入れる
+input_iterator_tagの関数はforward_iterator_tagも受け入れる (forward_iterator_tagはinput_iterator_tagを継承しているため)
 </p>
 </section>
 
 <section>
 <h3>呼び出し用の関数</h3>
-<pre><code class="cpp">
+<pre><code class="cpp" style="font-size: 28px;">
 template&lt;typename IterT, typename DistT&gt;
 void advance(IterT& iter, DistT d)
 {
@@ -269,10 +269,10 @@ void advance(IterT& iter, DistT d)
 
 <section>
 <h3>traitsクラスを利用する手順</h3>
-<p>
-traits毎に実際の処理を行うオーバーロード関数を実装<br>
-traitsクラスの情報を利用して各オーバーロード関数を呼び出す関数を作成する
-</p>
+<ul>
+<li>traits毎に実際の処理を行うオーバーロード関数を実装</li>
+<li>traitsクラスの情報を利用して各オーバーロード関数を呼び出す関数を作成する</li>
+</ul>
 </section>
 
 <section>
